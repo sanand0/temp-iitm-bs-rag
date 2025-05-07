@@ -1,0 +1,9 @@
+# Secrets
+.env
+
+# Crawled / generated content
+content/
+chunks.json
+
+# Temp files
+__pycache__/
