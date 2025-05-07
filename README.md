@@ -1,14 +1,23 @@
+# Setup instructions
+
+First, set up variables and install the Google Cloud CLI and authenticate:
+
+
+```bash
 # export IITM_BS_WEBSITE_PASSWORD=...
 # export PROJECT=...
 export DB=iitm-bs-rag
 export TABLE=iitm-bs-website
 
-
 # Install & login
 curl https://sdk.cloud.google.com | bash
 gcloud auth login   # e.g. anand@study.iitm.ac.in
 gcloud config set project $PROJECT
+```
 
+Create a PostgreSQL instance with the `pg_vector` extension:
+
+```bash
 gcloud sql instances create $DB \
   --database-version=POSTGRES_15 \
   --cpu=2 \
@@ -19,9 +28,18 @@ gcloud sql users set-password postgres \
   --password=$IITM_BS_WEBSITE_PASSWORD
 gcloud sql databases create $TABLE \
   --instance=$DB
+```
 
+Connect to the database to enable the `pg_vector` extension and create schema:
+
+```bash
 gcloud auth login
-gcloud sql connect $DB --user=postgres <<EOF
+gcloud sql connect $DB --user=postgres
+```
+
+Once connected, run this SQL:
+
+```sql
 \c $TABLE
 
 -- Enable vector extension
@@ -83,3 +101,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 EOF
+```
