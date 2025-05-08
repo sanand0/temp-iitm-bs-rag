@@ -1,12 +1,13 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "asyncpg",
-#     "fastapi",
-#     "openai",
-#     "pydantic",
-#     "python-dotenv",
-#     "uvicorn",
+#     "asyncpg==0.30.0",
+#     "fastapi==0.115.12",
+#     "openai==1.77.0",
+#     "pgvector==0.4.1",
+#     "pydantic==2.11.4",
+#     "python-dotenv==1.1.0",
+#     "uvicorn[standard]==0.34.2",
 # ]
 # ///
 
@@ -21,9 +22,15 @@ import uuid
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from contextlib import asynccontextmanager
+from pgvector.asyncpg import register_vector
+
 
 load_dotenv()
 
+
+async def init_conn(conn):
+    # this will find the pgvector type and register text & binary codecs
+    await register_vector(conn)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,20 +41,8 @@ async def lifespan(app: FastAPI):
         user=DB_USER,
         password=DB_PASS,
         max_size=DB_POOL_SIZE,
+        init=init_conn,
     )
-
-    # tell asyncpg how to serialize & deserialize `vector` in text format
-    async with app.state.pool.acquire() as conn:
-        await conn.set_type_codec(
-            "vector",
-            # encoder: Python list[float] → "[f1,f2,...]" text
-            encoder=lambda vec: "[" + ",".join(map(str, vec)) + "]",
-            # decoder: "[f1,f2,...]" → Python list[float]
-            decoder=lambda s: [float(x) for x in s.strip("[]").split(",") if x],
-            schema="public",
-            format="text",
-        )
-
     yield
     # shutdown: close it
     if app.state.pool:

@@ -1,9 +1,10 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Switch to app directory
 WORKDIR /app
-
-# Install dependencies
-RUN pip install --no-cache-dir uvicorn fastapi uvicorn[standard] openai asyncpg pydantic
 
 # Copy application code
 COPY main.py .
@@ -11,5 +12,5 @@ COPY main.py .
 # Expose port
 EXPOSE 8080
 
-# Run with uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run with uv
+CMD ["uv", "run", "main.py"]

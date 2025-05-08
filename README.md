@@ -76,12 +76,13 @@ gcloud sql users set-password postgres \
   --instance=$INSTANCE --password=$PASSWORD
 gcloud sql databases create $DB --instance=$INSTANCE
 
-# Get the IP address
-gcloud sql instances describe $INSTANCE --project=$PROJECT \
-    --format="get(ipAddresses[0].ipAddress)"
-```
+# Get the public IP address
+export DB_HOST=$(gcloud sql instances describe $INSTANCE --project=$PROJECT --format="get(ipAddresses[0].ipAddress)")
+export INSTANCE_CONNECTION_NAME=$(gcloud sql instances describe iitm-bs-rag --format="value(connectionName)")
 
-Update `DB_HOST` in `.env` to reflect the IP address from the last command above.
+# Allow access from any IP -- use with caution
+gcloud sql instances patch $INSTANCE --project=$PROJECT --authorized-networks="0.0.0.0/0"
+```
 
 Connect to the database to enable the `pg_vector` extension and create schema:
 
@@ -210,10 +211,17 @@ gcloud run deploy rag-api \
   --region $REGION \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars="DB_HOST=$DB_HOST,PASSWORD=$PASSWORD,OPENAI_API_KEY=$OPENAI_API_KEY"
+  --set-env-vars="DB_HOST=$DB_HOST,DB_NAME=$DB_NAME,PASSWORD=$PASSWORD,OPENAI_API_KEY=$OPENAI_API_KEY"
 ```
 
-## TODO
+Now test the application:
 
-- [x] Migrate from container registry to artifact registry
-- [ ] Migrate to uv from pip
+```bash
+export SERVER=$(gcloud run services describe rag-api --region $REGION --format='value(status.url)')
+
+# Check health
+curl $SERVER/health
+
+# Check search
+curl $SERVER/ search -H "Content-Type: application/json" -d '{"q": "... some search string ..."}'
+```
