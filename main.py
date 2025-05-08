@@ -15,7 +15,6 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
-import asyncio
 import asyncpg
 import os
 import uuid
@@ -75,7 +74,7 @@ DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "32"))
 # OpenAI API configuration
 openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4.1-micro")
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4.1-nano")
 
 
 class Chunk(BaseModel):
@@ -158,9 +157,9 @@ async def search(query: Query, request: Request):
 
 
 @app.post("/answer", response_model=Answer)
-async def answer_query(query: Query):
+async def answer_query(query: Query, request: Request):
     # Search for relevant chunks
-    search_results = await search(query)
+    search_results = await search(query, request)
 
     # Extract chunk contents
     chunks = [r["content"] for r in search_results["results"]]
