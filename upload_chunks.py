@@ -25,7 +25,6 @@ async def upload_chunks(chunks):
             # Send batch to API
             payload = {"chunks": chunks[i:i + BATCH_SIZE]}
             async with session.post(f"{API_URL}/chunks", json=payload) as response:
-                print(payload)
                 if response.status != 201:
                     print(f"Error uploading batch {i//BATCH_SIZE}: {await response.text()}")
                 else:

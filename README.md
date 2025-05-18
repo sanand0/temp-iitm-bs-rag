@@ -223,5 +223,12 @@ export SERVER=$(gcloud run services describe rag-api --region $REGION --format='
 curl $SERVER/health
 
 # Check search
-curl $SERVER/ search -H "Content-Type: application/json" -d '{"q": "... some search string ..."}'
+curl $SERVER/search -H "Content-Type: application/json" -d '{"q": "... some search string ..."}'
+```
+
+## Run test cases
+
+```bash
+# Run tests repeatedly
+npx -y promptfoo eval --repeat 5
 ```

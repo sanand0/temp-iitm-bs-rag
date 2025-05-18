@@ -1,0 +1,97 @@
+providers:
+  - id: https
+    config:
+      url: "{{ env.SERVER }}/answer"
+      method: "POST"
+      headers:
+        "Content-Type": "application/json"
+      body:
+        q: "{{query}}"
+      transformResponse: "json.answer"
+
+prompts:
+  - "{{query}}"
+
+defaultTest:
+  assert:
+    - type: llm-rubric
+      value: |-
+        Verify the response answers this question with all the content from this standard answer below:
+
+        <QUERY>{{query}}</QUERY>
+        <ANSWER>
+        {{answer}}
+        </ANSWER>
+
+tests:
+  - description: "Fees for the program"
+    vars:
+      query: "What is the fees for the program?"
+      answer: |
+        The fees for the program vary depending on the goal and level of certification. According to the [Fee Structure](academics.html#AC10) section, the specific fees are:
+        - Foundation Only: ₹32,000
+        - Foundation + One Diploma: ₹94,500
+        - Foundation + Two Diplomas: ₹1,57,000
+        - BSc Degree: ₹2,21,000 - ₹2,27,000
+        - BS Degree: ₹3,15,000 - ₹3,51,000
+
+  - description: "Validity of the degree"
+    vars:
+      query: "Is this a valid degree?"
+      answer: |
+        Yes. It is an official Bachelor of Science degree in Data Science and Applications from IIT Madras, a UGC-recognized institution, and is valid for academic and professional purposes.
+
+  - description: "Usefulness for job applications"
+    vars:
+      query: "Is this degree useful for job applications?"
+      answer: |
+        Yes. Graduates have strong employability in data analysis, data science, and full-stack development; IIT Madras engages recruiters and provides placement support and soft-skills training.
+
+  - description: "Diploma-level courses"
+    vars:
+      query: "What are the courses at Diploma level?"
+      answer: |
+        **Diploma in Programming**
+        - Database Management Systems (BSCS2001)
+        - Programming, Data Structures & Algorithms using Python (BSCS2002)
+        - Modern Application Dev I & Project (BSCS2003, BSCS2003P)
+        - Programming Concepts using Java (BSCS2005)
+        - Modern Application Dev II & Project (BSCS2006, BSCS2006P)
+        - System Commands (BSSE2001)
+
+        **Diploma in Data Science**
+        - Machine Learning Foundations (BSCS2004)
+        - Business Data Management & Project (BSMS2001, BSMS2001P)
+        - Machine Learning Techniques & Practice (+ Project) (BSCS2007, BSCS2008, BSCS2008P)
+        - Business Analytics (BSMS2002)
+        - Tools in Data Science (BSSE2002)
+
+  - description: "Qualifier definition"
+    vars:
+      query: "What is a qualifier?"
+      answer: |
+        A qualifier is a preliminary 4-week process granting access to foundational content. Learners complete assignments and those meeting minimum marks may sit an in-person qualifier exam. The exam result is valid for two semesters (one year) and determines eligibility for formal enrollment.
+
+  - description: "Laptop requirement for qualifier"
+    vars:
+      query: "Do I need to have a laptop for attempting qualifier?"
+      answer: |
+        Yes. A laptop or desktop with a good internet connection is required to access qualifier content, complete assignments, and sit the qualifier exam.
+
+  - description: "Unique email per learner"
+    vars:
+      query: "My kids are twins. Can they use same email id to access qualifier content?"
+      answer: |
+        No. Each learner must register with a unique email address to create a separate account and access qualifier content.
+
+  - description: "BS program length"
+    vars:
+      query: "How long is the BS program?"
+      answer: |
+        The BS program is structured as a 4-year degree, though learners may complete it in 4 to 8 years depending on their pace.
+
+  - description: "BS program duration"
+    vars:
+      query: "What is the duration of BS program?"
+      answer: |
+        The duration of the BS program is 4 years, with an overall completion window of 4 to 8 years based on learner pace.
